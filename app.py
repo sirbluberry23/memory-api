@@ -65,29 +65,27 @@ def save_memory():
     return jsonify(memory), 201
 
 
-# ---------------------------------------------------
-# Delete by exact content
-# ---------------------------------------------------
 @app.route("/memory", methods=["DELETE"])
 def delete_memory_by_content():
     data = request.json
     if not data or "content" not in data:
         return jsonify({"error": "content field required"}), 400
 
-    target = data["content"]
+    target = data["content"].lower()
     to_delete = None
 
     for mem_id, mem in memories.items():
-        if mem["content"] == target:
+        if target in mem["content"].lower():  # partial match
             to_delete = mem_id
             break
 
     if to_delete:
         del memories[to_delete]
-        save_memories_to_file()  # persist deletion
+        save_memories_to_file()
         return '', 204
 
     return jsonify({"error": "Not found"}), 404
+
 
 
 # ---------------------------------------------------
