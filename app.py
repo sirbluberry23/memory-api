@@ -65,16 +65,21 @@ def save_memory():
     return jsonify(memory), 201
 
 
-@app.route("/memory", methods=["DELETE"])
+@app.route("/memory/delete", methods=["POST", "DELETE"])
 def delete_memory_by_content():
-    data = request.json
-    if not data or "content" not in data:
+    # Try JSON first (for POST), but don't crash if it's not JSON
+    data = request.get_json(silent=True) or {}
+
+    # Accept content either from JSON body or query parameters
+    content = data.get("content") or request.args.get("content")
+
+    if not content:
         return jsonify({"error": "content field required"}), 400
 
-    target = data["content"].lower()
+    target = content.lower()
     to_delete = None
 
-    for mem_id, mem in memories.items():
+    for mem_id, mem in list(memories.items()):
         if target in mem["content"].lower():
             to_delete = mem_id
             break
