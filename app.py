@@ -34,7 +34,6 @@ def delete_memory_by_content():
     target = data["content"]
     to_delete = None
 
-    # Find a memory whose content exactly matches
     for mem_id, mem in memories.items():
         if mem["content"] == target:
             to_delete = mem_id
@@ -45,7 +44,3 @@ def delete_memory_by_content():
         return '', 204
 
     return jsonify({"error": "Not found"}), 404
-
-
-if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=8000)
