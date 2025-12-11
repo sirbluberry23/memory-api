@@ -75,16 +75,17 @@ def delete_memory_by_content():
     to_delete = None
 
     for mem_id, mem in memories.items():
-        if target in mem["content"].lower():  # partial match
+        if target in mem["content"].lower():
             to_delete = mem_id
             break
 
     if to_delete:
         del memories[to_delete]
         save_memories_to_file()
-        return '', 204
+        return jsonify({"status": "deleted"}), 200
 
     return jsonify({"error": "Not found"}), 404
+
 
 
 
