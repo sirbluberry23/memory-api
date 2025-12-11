@@ -28,9 +28,22 @@ def get_memory(id):
         return jsonify(memory)
     return jsonify({"error": "Not found"}), 404
 
-@app.route("/memory/<id>", methods=["DELETE"])
-def delete_memory(id):
-    if id in memories:
-        del memories[id]
+@app.route("/memory", methods=["DELETE"])
+def delete_memory_by_content():
+    data = request.json
+    content = data.get("content")
+
+    if not content:
+        return jsonify({"error": "content field required"}), 400
+
+    to_delete = None
+    for key, mem in memories.items():
+        if mem["content"] == content:
+            to_delete = key
+            break
+
+    if to_delete:
+        del memories[to_delete]
         return '', 204
+
     return jsonify({"error": "Not found"}), 404
