@@ -12,34 +12,32 @@ def list_memories():
 @app.route("/memory", methods=["POST"])
 def save_memory():
     data = request.json
+    if not data or "content" not in data:
+        return jsonify({"error": "Missing content"}), 400
+
     memory_id = str(uuid.uuid4())
     memory = {
         "id": memory_id,
         "content": data["content"],
         "createdAt": datetime.utcnow().isoformat()
     }
+
     memories[memory_id] = memory
     return jsonify(memory), 201
-
-@app.route("/memory/<id>", methods=["GET"])
-def get_memory(id):
-    memory = memories.get(id)
-    if memory:
-        return jsonify(memory)
-    return jsonify({"error": "Not found"}), 404
 
 @app.route("/memory", methods=["DELETE"])
 def delete_memory_by_content():
     data = request.json
-    content = data.get("content")
-
-    if not content:
+    if not data or "content" not in data:
         return jsonify({"error": "content field required"}), 400
 
+    target = data["content"]
     to_delete = None
-    for key, mem in memories.items():
-        if mem["content"] == content:
-            to_delete = key
+
+    # Find a memory whose content exactly matches
+    for mem_id, mem in memories.items():
+        if mem["content"] == target:
+            to_delete = mem_id
             break
 
     if to_delete:
@@ -47,3 +45,7 @@ def delete_memory_by_content():
         return '', 204
 
     return jsonify({"error": "Not found"}), 404
+
+
+if __name__ == "__main__":
+    app.run(host="0.0.0.0", port=8000)
